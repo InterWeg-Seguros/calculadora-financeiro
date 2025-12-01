@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Comissão – InterWeg</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --primary: #38bdf8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --card: #0b1220;
+      --border: #1f2937;
+      --shadow: 0 12px 30px rgba(0, 0, 0, .35), 0 2px 6px rgba(0, 0, 0, .25)
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, var(--bg), #0a0f1d 65%);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial
+    }
+
+    .wrap {
+      max-width: 1024px;
+      margin: 40px auto;
+      padding: 0 16px
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 16px
+    }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 30px);
+      margin: 0 0 6px
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--card));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px
+    }
+
+    .col-3 {
+      grid-column: span 3
+    }
+
+    .col-4 {
+      grid-column: span 4
+    }
+
+    .col-6 {
+      grid-column: span 6
+    }
+
+    .col-8 {
+      grid-column: span 8
+    }
+
+    .col-12 {
+      grid-column: span 12
+    }
+
+    @media(max-width:780px) {
+      .grid {
+        grid-template-columns: repeat(6, 1fr)
+      }
+
+      .col-3,
+      .col-4,
+      .col-6,
+      .col-8 {
+        grid-column: span 6
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 0 6px
+    }
+
+    input,
+    select,
+    button,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--text)
+    }
+
+    textarea {
+      min-height: 120px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid var(--primary);
+      border-color: transparent
+    }
+
+    .row {
+      margin: 8px 0
+    }
+
+    .btn {
+      cursor: pointer;
+      border: none
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #1e40af, #0ea5e9);
+      color: #fff
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border)
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      align-items: start
+    }
+
+    .stat {
+      grid-column: span 4;
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px
+    }
+
+    .stat h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .stat .val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      font-size: 22px
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600
+    }
+
+    .ok {
+      background: rgba(34, 197, 94, .15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, .35)
+    }
+
+    .bad {
+      background: rgba(239, 68, 68, .15);
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, .35)
+    }
+
+    .warn {
+      background: rgba(245, 158, 11, .15);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, .35)
+    }
+
+    .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #0a0f1a;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      color: #cbd5e1;
+      white-space: pre-wrap
+    }
+
+    .kbd {
+      font: 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas;
+      background: #0b1220;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #cbd5e1
+    }
+
+    footer {
+      margin: 22px 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Calculadora de Comissão – InterWeg</h1>
+        <div class="sub">Cole o <strong>JSON do Teleport</strong> e a <strong>Regra do Contrato</strong></div>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="formTitle">
+      <h2 id="formTitle" class="sub" style="margin-top:0">Entradas</h2>
+      <div class="grid">
+        <div class="col-6">
+          <label>JSON do Teleport (item de extrato)</label>
+          <textarea id="jsonTeleport"
+            placeholder='{"extrato":"0000003157","seguradora":"HDI","apolice":"611108","parcela":1,"premio":252.57,"comissao_recebida":252.57,"iss_percent":5,"iss_valor":14.53}'></textarea>
+          <div class="sub" style="font-size:12px">Campos aceitos: <span class="kbd">premio</span>, <span
+              class="kbd">premio_bruto</span>, <span class="kbd">premio_liquido</span>, <span
+              class="kbd">comissao_recebida</span>, <span class="kbd">iss_percent</span> / <span
+              class="kbd">iss_valor</span>, <span class="kbd">irrf_percent</span> / <span class="kbd">irrf_valor</span>,
+            <span class="kbd">outros_descontos</span>.
+          </div>
+        </div>
+        <div class="col-6">
+          <label>Regra do Contrato (por apólice)</label>
+          <textarea id="jsonContrato"
+            placeholder='{"apolice":"611108","base":"bruto","percentual_negociado":20}'></textarea>
+          <div class="sub" style="font-size:12px">Exige: <span class="kbd">apolice</span>, <span class="kbd">base</span>
+            (bruto|liquido), <span class="kbd">percentual_negociado</span>.</div>
+        </div>
+        <div class="col-4">
+          <label>Tolerância (R$)</label>
+          <input id="tolAuto" value="1,00" />
+        </div>
+        <div class="col-8">
+        </div>
+      </div>
+
+      <div class="row actions" style="margin-top:14px">
+        <button class="btn btn-primary" id="btnCalc">Calcular</button>
+        <button class="btn btn-ghost" id="btnLimpar">Limpar</button>
+        <button class="btn btn-ghost" id="btnExport">Exportar JSON</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px" aria-labelledby="resTitle">
+      <h2 id="resTitle" class="sub" style="margin-top:0">Resultado</h2>
+      <div class="result">
+        <div class="stat">
+          <h3>Valor Esperado (líquido)</h3>
+          <div class="val" id="outEsperado">R$ 0,00</div>
+        </div>
+        <div class="stat">
+          <h3>Diferença (Recebido − Esperado)</h3>
+          <div class="val" id="outDiferenca">R$ 0,00</div>
+        </div>
+        <div class="stat">
+          <h3>Status</h3>
+          <div id="outStatus"><span class="badge warn">Aguardando cálculo</span></div>
+        </div>
+        <div class="col-12">
+          <div class="formula" id="outFormula">Fórmula: esperado_liq = (base × percentual) − ISS − IRRF − outros</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      v2 • Automático via JSON. Nenhum dado sai do navegador.
+    </footer>
+  </div>
+
+  <script>
+    const fmtBRL = (n) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(isFinite(n) ? n : 0);
+    const toNumber = (v) => { if (v == null) return 0; if (typeof v === 'number') return v; v = String(v).trim().replace(/\s+/g, ''); if (!v) return 0; if (/,/.test(v) && /\./.test(v)) v = v.replace(/\./g, '').replace(',', '.'); else v = v.replace(',', '.'); const n = Number(v); return isFinite(n) ? n : 0 };
+    const round2 = (n) => +(Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+
+    function calcularAuto() {
+      let tp = {}; let ct = {}; let tol = 1;
+      try { tp = JSON.parse(document.getElementById('jsonTeleport').value || '{}'); } catch (e) { alert('JSON do Teleport inválido'); return null; }
+      try { ct = JSON.parse(document.getElementById('jsonContrato').value || '{}'); } catch (e) { alert('JSON do Contrato inválido'); return null; }
+      tol = toNumber(document.getElementById('tolAuto').value || '1');
+
+      const baseTipo = (ct.base || '').toLowerCase();
+      const baseValor = baseTipo === 'bruto' ? (tp.premio_bruto ?? tp.premio ?? 0) : (tp.premio_liquido ?? tp.premio ?? 0);
+      const perc = toNumber(ct.percentual_negociado || 0);
+
+      const esperadoBruto = round2(toNumber(baseValor) * (perc / 100));
+
+      // descontos (usa valor fixo se existir, senão calcula por %)
+      const iss = toNumber(tp.iss_valor) || round2(esperadoBruto * (toNumber(tp.iss_percent) / 100));
+      const irrf = toNumber(tp.irrf_valor) || round2(esperadoBruto * (toNumber(tp.irrf_percent) / 100));
+      const outros = toNumber(tp.outros_descontos);
+
+      const esperadoLiq = round2(esperadoBruto - iss - irrf - outros);
+      const recebido = toNumber(tp.comissao_recebida || 0);
+
+      const baseLabel = baseTipo === 'bruto' ? 'prêmio bruto (Teleport)' : 'prêmio líquido (Teleport)';
+      const formula = `esperado_bruto = ${fmtBRL(baseValor)} × (${perc}/100) = ${fmtBRL(esperadoBruto)}\nISS=${fmtBRL(iss)}  IRRF=${fmtBRL(irrf)}  Outros=${fmtBRL(outros)}\nesperado_líquido = ${fmtBRL(esperadoLiq)}`;
+      return { esperadoLiq, recebido, tol, baseLabel, esperadoBruto, formula };
+    }
+
+    function aplicarResultado(res) {
+      const diff = round2(res.recebido - res.esperadoLiq);
+      document.getElementById('outEsperado').textContent = fmtBRL(res.esperadoLiq);
+      document.getElementById('outDiferenca').textContent = fmtBRL(diff);
+      const statusEl = document.getElementById('outStatus');
+      statusEl.innerHTML = ''; const badge = document.createElement('span'); badge.className = 'badge';
+      if (Math.abs(diff) <= res.tol) { badge.textContent = 'PAGO (dentro da tolerância)'; badge.classList.add('ok'); }
+      else if (diff > res.tol) { badge.textContent = 'ACIMA do esperado (+)'; badge.classList.add('warn'); }
+      else { badge.textContent = 'DIVERGENTE (abaixo do esperado)'; badge.classList.add('bad'); }
+      statusEl.appendChild(badge);
+      document.getElementById('outFormula').textContent = res.formula || `Fórmula: esperado = valor_base (${res.baseLabel}) × (percentual/100)`;
+    }
+
+    function calc() { const r = calcularAuto(); if (!r) return; aplicarResultado(r); }
+
+    function limpar() {
+      for (const id of ['jsonTeleport', 'jsonContrato', 'tolAuto']) { const el = document.getElementById(id); if (el) el.value = id === 'tolAuto' ? '1,00' : ''; }
+      document.getElementById('outEsperado').textContent = 'R$ 0,00';
+      document.getElementById('outDiferenca').textContent = 'R$ 0,00';
+      document.getElementById('outStatus').innerHTML = '<span class="badge warn">Aguardando cálculo</span>';
+      document.getElementById('outFormula').textContent = 'Fórmula: esperado_liq = (base × percentual) − ISS − IRRF − outros';
+    }
+
+    function exportar() {
+      const payload = { resultado: document.getElementById('outStatus').innerText, esperado: document.getElementById('outEsperado').innerText, diferenca: document.getElementById('outDiferenca').innerText };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'resultado-calculo.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    document.getElementById('btnCalc').addEventListener('click', calc);
+    document.getElementById('btnLimpar').addEventListener('click', limpar);
+    document.getElementById('btnExport').addEventListener('click', exportar);
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); calc(); } });
+  </script>
+</body>
+
+</html>
