@@ -30,7 +30,7 @@ DISPARO-DIGISAC/
  ├── digisac_sender_text_v01.py # Script principal de disparo
  ├── resultado_envio.csv        # Log dos envios gerado automaticamente
  └── teste.csv                  # Arquivo auxiliar para testes
-
+```
 
 ## 🛠 Requisitos
 
